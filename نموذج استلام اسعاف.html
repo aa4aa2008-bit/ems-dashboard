@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج تسليم واستلام سيارة إسعاف (محدث)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+/* 1. SETUP & STYLING */
+* { box-sizing: border-box; direction: rtl; }
+
+body {
+  background-color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* --- DOCUMENT STYLES (A4) --- */
+.a4-document {
+  width: 100%; max-width: 800px; 
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Typography */
+.a4-document h1, .a4-document h3, .a4-document h4 { color: #B71C1C; font-weight: 700; margin: 0; text-align: right; width: 100%; }
+.a4-document h1 { font-size: 28px; line-height: 1.2; }
+.a4-document h3 { font-size: 15px; margin-top: 15px; border-bottom: 2px solid #D32F2F; padding-bottom: 5px; color: #D32F2F; }
+.a4-document h4 { font-size: 14px; margin-top: 10px; margin-bottom: 5px; color: #B71C1C; }
+.a4-document p, .a4-document td, .a4-document li { color: #334155; font-size: 11px; line-height: 1.5; }
+.subtitle { font-size: 16px; font-weight: 400; color: #334155; margin-top: 5px; }
+
+/* Header */
+/* تم تعديل هذا القسم لجعل المحتوى النصي يملأ المساحة بدلاً من توزيعها مع الصورة */
+.header-section { display: flex; justify-content: flex-start; margin-bottom: 15px; align-items: center; } 
+/* .image-header تم حذف هذا النمط لعدم الحاجة إليه */
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+td, th { border: 1px solid #e2e8f0; padding: 6px; vertical-align: middle; }
+th { background: #F8FAFC; color: #334155; font-weight: 600; font-size: 11px; text-align: center; }
+
+/* Admin Table Specifics */
+.admin-table th { width: 15%; background-color: #f9f9f9; }
+.admin-table td { width: 35%; }
+
+/* Inputs */
+input, select, textarea.form-field { 
+    width: 100%; border: 1px solid #e2e8f0; background: transparent; 
+    font-family: 'Cairo', sans-serif; font-size: 11px; padding: 4px; border-radius: 4px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid #D32F2F; border-color: transparent; }
+
+/* Status Colors */
+/* For Vehicle (Good/Fault) */
+select.status-vehicle.good { background-color: #dcfce7; color: #15803d; font-weight: bold; border-color: #86efac; }
+select.status-vehicle.fault { background-color: #fee2e2; color: #b91c1c; font-weight: bold; border-color: #fca5a5; }
+
+/* For Equipment (Available/Missing) */
+select.status-equip.yes { background-color: #dcfce7; color: #15803d; font-weight: bold; }
+select.status-equip.no { background-color: #fee2e2; color: #b91c1c; font-weight: bold; }
+
+
+.col-category { background-color: #fef2f2; color: #B71C1C; font-weight: 700; text-align: center; font-size: 12px; }
+
+/* --- NOTES FIELD --- */
+.general-notes {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 50px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    background-color: #f8fafc;
+    margin-bottom: 15px;
+}
+
+/* --- UPLOAD GRID STYLES (Updated for 6 items) --- */
+.upload-grid {
+    display: grid;
+    /* تم تغيير التنسيق ليصبح عمودين (صورتان في الصف) */
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.upload-box {
+    border: 2px dashed #cbd5e1;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    /* تم زيادة ارتفاع الصندوق لاستيعاب الصور الأكبر */
+    height: 180px; 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+.upload-box:hover {
+    border-color: #B71C1C;
+    background-color: #fff1f2;
+}
+.upload-box input[type="file"] {
+    position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;
+}
+.upload-label {
+    position: absolute; top: 5px; left: 5px;
+    background: rgba(255,255,255,0.9);
+    padding: 2px 6px; border-radius: 4px;
+    font-weight: bold; font-size: 10px;
+    color: #334155; border: 1px solid #e2e8f0; z-index: 1;
+}
+.upload-placeholder {
+    text-align: center; color: #94a3b8; pointer-events: none; font-size: 10px;
+}
+.upload-icon { font-size: 18px; margin-bottom: 2px; display: block; }
+.preview-img {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 0;
+}
+
+/* --- NOTES FIELD --- */
+.general-notes {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 50px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    background-color: #f8fafc;
+    margin-bottom: 15px;
+}
+
+/* --- UPLOAD GRID STYLES (Updated for 6 items) --- */
+/* (Styles repeated for completeness - no changes here) */
+
+/* --- INSTRUCTIONS & DECLARATION --- */
+.instructions-box { margin-top: 15px; margin-bottom: 15px; }
+.instructions-list { list-style-type: disc; padding-right: 20px; margin: 5px 0; }
+.declaration-box {
+    border: 2px solid #7f1d1d; background-color: #fff5f5;
+    padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;
+}
+.declaration-text { font-size: 12px; color: #333; font-weight: 600; line-height: 1.6; }
+
+/* --- SIGNATURE PAD STYLES --- */
+.signature-container {
+    position: relative; width: 100%; height: 90px;
+    border: 1px dashed #cbd5e1; background-color: #f8fafc;
+    border-radius: 4px; overflow: hidden; touch-action: none;
+}
+.signature-container canvas { width: 100%; height: 100%; display: block; }
+.clear-sig-btn {
+    position: absolute; top: 5px; left: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e2e8f0;
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px; cursor: pointer; color: #ef4444; font-weight: bold;
+    z-index: 3; /* Ensure button is clickable over canvas/img */
+}
+.sig-placeholder {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: #94a3b8; font-size: 10px; pointer-events: none; opacity: 0.7;
+    z-index: 1;
+}
+
+/* Print Styles for Signature */
+@media print {
+    body { background: none; padding: 0; }
+    .a4-document { box-shadow: none; padding: 0; width: 100%; max-width: none; }
+    input, select, textarea { border: none !important; -webkit-appearance: none; }
+    .signature-container { border: 1px solid #000; background: none; }
+    .clear-sig-btn, .sig-placeholder { display: none; }
+    .upload-box { border: 1px solid #000; background: none; height: 180px; }
+    .upload-placeholder { display: none; }
+    .preview-img { display: block !important; }
+
+    /* Hide Canvas, Show Image when printing */
+    .signature-container canvas { display: none !important; }
+    .signature-container img { display: block !important; } /* This is the fix for printing */
+
+    /* Force background colors for selects in print */
+    select.status-vehicle.fault { color: #b91c1c !important; font-weight: bold; text-decoration: underline; }
+    select.status-equip.no { color: #b91c1c !important; font-weight: bold; }
+}
+    </style>
+</head>
+<body>
+
+<div class="a4-document" id="a4-form">
+    
+    <div class="header-section">
+        <div>
+            <h1>نموذج تسليم واستلام سيارة إسعاف</h1>
+            <p class="subtitle">Ambulance Handover & Receiving Form</p>
+            <p class="subtitle" style="font-weight: 600;">بروتوكول جاهزية المركبة والمعدات</p>
+        </div>
+    </div>
+
+    <h3>I. بيانات المركبة والاستلام (Vehicle & Receiving Information)</h3>
+    <table class="admin-table">
+        <tbody>
+            <tr>
+                <th>التاريخ (ميلادي)<br><span style="font-weight:normal; font-size:10px;">Date</span></th>
+                <td><input type="date" id="admin-date"></td>
+                <th>الوقت<br><span style="font-weight:normal; font-size:10px;">Time</span></th>
+                <td><input type="time" id="admin-time"></td>
+            </tr>
+            <tr>
+                <th>رقم اللوحة<br><span style="font-weight:normal; font-size:10px;">Plate No</span></th>
+                <td><input type="text" id="admin-plate"></td>
+                <th>نوع المركبة<br><span style="font-weight:normal; font-size:10px;">Vehicle Type</span></th>
+                <td>
+                    <select id="admin-type">
+                        <option value="GMC">GMC</option>
+                        <option value="Savanna">جمس سافانا (GMC Savanna)</option>
+                        <option value="Toyota">تويوتا (Toyota)</option>
+                        <option value="Ford">Ford Transit</option>
+                        <option value="Mercedes">Mercedes Sprinter</option>
+                        <option value="Other">أخرى (Other)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>اسم المستلم<br><span style="font-weight:normal; font-size:10px;">Receiver Name</span></th>
+                <td><input type="text" id="admin-receiver"></td>
+                <th>الرقم الوظيفي<br><span style="font-weight:normal; font-size:10px;">Employee ID</span></th>
+                <td><input type="text" id="admin-id"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>II. قائمة الفحص (Checklist)</h3>
+    <table>
+        <thead>
+            <tr><th style="width:5%">#</th><th style="width:45%">البند</th><th style="width:35%">Item (EN)</th><th style="width:15%">الحالة (Status)</th></tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="4" class="col-category">أ: جاهزية المركبة (Vehicle Readiness)</td></tr>
+            <tr>
+                <td>1</td><td>المظهر الخارجي</td><td>External Body</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>2</td><td>تكييف السائق</td><td>Driver A/C</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>3</td><td>الأضواء الأمامية</td><td>Front Lights</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>4</td><td>الإطارات</td><td>Tires</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>5</td><td>العفريتة ومفتاح العجلات</td><td>Jack & Wheel Spanner</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>6</td><td>الإطار الاحتياطي</td><td>Spare Tire</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>7</td><td>المساحات</td><td>Wipers</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>8</td><td>الفرامل</td><td>Brakes</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>9</td><td>أضواء الطوارئ</td><td>Warning Lights</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>10</td><td>الصافرة (السيرين)</td><td>Siren</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>11</td><td>ماء الرديتر كافٍ</td><td>Radiator Water</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>12</td><td>زيت المحرك كافٍ</td><td>Engine Oil Level</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>13</td><td>مستوى الوقود (%)</td><td>Fuel Level (%)</td>
+                <td><input type="number" min="0" max="100" placeholder="%" class="form-field" style="width:100%;"></td>
+            </tr>
+            
+            <tr><td colspan="4" class="col-category">ب: المعدات الطبية والإسعافية (Medical Equipment)</td></tr>
+            <tr>
+                <td>14</td><td>النقالة القابلة للطي بـ 5 أحزمة</td><td>Folding Stretcher</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>15</td><td>كرسي الدرج بـ 2 أحزمة</td><td>Stair Chair</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>16</td><td>نقالة سترايكر (Stryker) بحزامين</td><td>Stryker w/ 2 Straps</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>17</td><td>بطارية متصلة بنقالة سترايكر</td><td>Stryker Battery</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>18</td><td>جهاز تخطيط القلب (ECG-MAC 600)</td><td>ECG-MAC 600</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>19</td><td>جهاز الصدمات الكهربائية</td><td>Life pak 15</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>20</td><td>جهاز مراقبة العلامات الحيوية</td><td>MONITOR</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>21</td><td>جهاز شفط السوائل (Suction)</td><td>Suction</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>22</td><td>جهاز مزيل الرجفان الخارجي الآلي</td><td>AED</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>23</td><td>طقم التنبيب (كبار وأطفال)</td><td>Intubation Kit</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>24</td><td>مقبض منظار الحنجرة</td><td>Laryngoscope Handle</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>25</td><td>شفرات منظار الحنجرة</td><td>Laryngoscope Blades</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>26</td><td>لوح تثبيت الظهر بـ 5 أحزمة</td><td>Back Board</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>27</td><td>مثبتات الرأس (كبار وأطفال)</td><td>Head Immobilizer</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>28</td><td>أسطوانة الأوكسجين المحمولة D</td><td>Portable O2</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>29</td><td>جهاز قياس السكر</td><td>Glucometer</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>30</td><td>مقياس الحرارة عن طريق الأذن</td><td>Thermometer</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>31</td><td>سماعة طبية</td><td>Stethoscope</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>32</td><td>مقص طبي</td><td>Scissor</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>33</td><td>الثلاجة تعمل</td><td>Refrigerator</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+            <tr>
+                <td>34</td><td>طفاية حريق</td><td>Fire Extinguisher</td>
+                <td><select class="status-equip" onchange="updateEquipColor(this)"><option value="">--</option><option value="yes">متوفر (✓)</option><option value="no">غير متوفر (✗)</option></select></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>III. الصور والتوثيق (Photos & Documentation)</h3>
+    
+    <div style="margin-bottom: 10px;">
+        <label style="font-weight:bold; font-size:12px; color:#334155;">ملاحظات عامة (General Notes):</label>
+        <textarea class="general-notes" placeholder="أكتب أي ملاحظات إضافية هنا..."></textarea>
+    </div>
+
+    <div class="upload-grid">
+        <div class="upload-box">
+            <span class="upload-label">1. المقدمة (Front)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-1" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-1')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">2. الخلف (Back)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-2" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-2')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">3. الجانب الأيمن (Right)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-3" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-3')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">4. الجانب الأيسر (Left)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-4" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-4')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">5. الكابينة (Cabin)</span>
+            <div class="upload-placeholder"><span class="upload-icon">🚍</span><span>رفع صورة</span></div>
+            <img id="prev-5" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-5')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">6. المعدات (Equipment)</span>
+            <div class="upload-placeholder"><span class="upload-icon">🧳</span><span>رفع صورة</span></div>
+            <img id="prev-6" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-6')">
+        </div>
+    </div>
+
+    <h3>IV. التعليمات والإقرار (Instructions & Declaration)</h3>
+    
+    <div class="instructions-box">
+        <h4>التعليمات الهامة:</h4>
+        <ul class="instructions-list">
+            <li>الحد الأقصى للارتفاع: 2.90 متر.</li>
+            <li>يمنع إيقاف سيارة الإسعاف بجانب المداخل، ويجب إيقافها في مكان آمن.</li>
+            <li>في حالة الحوادث، يجب استدعاء نجم أو المرور وإرسال التقارير وصورة رخصة القيادة وصورة للمركبة المتضررة.</li>
+            <li>أي أعطال مُتعمَّدة تحت مسؤولية المستلم.</li>
+            <li>إدخال كود البنزين يتم عن طريق المسعف وليس عامل المحطة.</li>
+            <li>في حالة وجود ملاحظات، يتم التواصل مع المشرف.</li>
+        </ul>
+    </div>
+
+    <div class="declaration-box">
+        <div class="declaration-text">
+            أقرّ أنا المذكور أعلاه بأنني استلمت سيارة الإسعاف بحالة مطابقة لما هو موضح في النموذج، وأنني أتحمّل كامل المسؤولية عن أي إهمال أو سوء استخدام أو فقدان لأي من المعدات خلال فترة الاستلام.
+        </div>
+    </div>
+
+    <h3>V. التواقيع</h3>
+    <table class="signature-table">
+        <tr>
+            <td style="width:50%; vertical-align:top;">
+                <b>اسم المستلم (Receiver Name):</b>
+                <textarea id="receiver-notes" class="form-field" style="height:40px; margin-bottom:5px;"></textarea>
+                <div style="font-weight:bold; margin-bottom:2px;">توقيع المستلم (Receiver Sig):</div>
+                <div class="signature-container" id="sig-receiver-container">
+                    <span class="sig-placeholder">وقع هنا</span>
+                    <canvas id="sig-receiver"></canvas>
+                    <img id="sig-receiver-img" class="preview-img" style="object-fit:contain; z-index: 0;">
+                    <button class="clear-sig-btn" onclick="clearCanvas('sig-receiver')">مسح</button>
+                </div>
+            </td>
+            <td style="width:50%; vertical-align:top;">
+                <b>اسم المُسلّم (Endorser Name):</b>
+                <textarea id="endorser-notes" class="form-field" style="height:40px; margin-bottom:5px;"></textarea>
+                <div style="font-weight:bold; margin-bottom:2px;">توقيع المُسلّم (Endorser Sig):</div>
+                <div class="signature-container" id="sig-endorser-container">
+                    <span class="sig-placeholder">وقع هنا</span>
+                    <canvas id="sig-endorser"></canvas>
+                    <img id="sig-endorser-img" class="preview-img" style="object-fit:contain; z-index: 0;">
+                    <button class="clear-sig-btn" onclick="clearCanvas('sig-endorser')">مسح</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    document.getElementById('admin-date').valueAsDate = new Date();
+    const now = new Date();
+    document.getElementById('admin-time').value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    // Color Logic for Vehicle (1-10)
+    function updateVehicleColor(select) {
+        select.className = 'status-vehicle';
+        if (select.value === 'good') select.classList.add('good');
+        else if (select.value === 'fault') select.classList.add('fault');
+    }
+
+    // Color Logic for Equipment (12-32)
+    function updateEquipColor(select) {
+        select.className = 'status-equip';
+        if (select.value === 'yes') select.classList.add('yes'); // Available
+        else if (select.value === 'no') select.classList.add('no'); // Missing
+    }
+
+    function previewImage(input, imgId) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById(imgId);
+                img.src = e.target.result;
+                img.style.display = 'block';
+                input.parentElement.querySelector('.upload-placeholder').style.opacity = '0';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    /**
+     * Fix for printing: converts canvas signature to an image and displays it 
+     * in the hidden <img> tag.
+     */
+    function saveSignatureAsImage(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const imgId = canvasId + '-img';
+        const img = document.getElementById(imgId);
+        
+        // Check if the canvas is blank (by checking context pixel data)
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let isBlank = true;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            if (imageData.data[i + 3] !== 0) { // Check alpha channel
+                isBlank = false;
+                break;
+            }
+        }
+
+        if (!isBlank) {
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block'; // Make sure the image is visible for printing
+            canvas.style.display = 'block'; // Keep canvas visible during drawing
+        } else {
+            img.src = '';
+            img.style.display = 'none';
+        }
+    }
+
+    function initSignaturePad(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const container = canvas.parentElement;
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            const originalData = canvas.toDataURL(); // Save current drawing
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+            
+            // Redraw the saved image content on the resized canvas
+            if (originalData) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    saveSignatureAsImage(canvasId); // Update the hidden image for print
+                };
+                img.src = originalData;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function startDrawing(e) {
+            isDrawing = true; draw(e);
+            container.querySelector('.sig-placeholder').style.display = 'none';
+            canvas.style.display = 'block';
+        }
+        
+        function stopDrawing() { 
+            if (isDrawing) {
+                saveSignatureAsImage(canvasId); // Save content when drawing stops (FIX)
+            }
+            isDrawing = false; 
+            ctx.beginPath(); 
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return; e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            ctx.lineTo(clientX - rect.left, clientY - rect.top);
+            ctx.stroke(); 
+            ctx.beginPath();
+            ctx.moveTo(clientX - rect.left, clientY - rect.top);
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+        canvas.addEventListener('touchmove', draw, {passive: false});
+    }
+
+    function clearCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.parentElement.querySelector('.sig-placeholder').style.display = 'block';
+
+        // Clear the corresponding image element for printing (FIX)
+        const imgId = canvasId + '-img';
+        const img = document.getElementById(imgId);
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+    }
+
+    window.onload = function() {
+        initSignaturePad('sig-receiver');
+        initSignaturePad('sig-endorser');
+    };
+</script>
+
+</body>
+</html>

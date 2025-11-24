@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج استلام عربة الجولف</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+/* 1. SETUP & STYLING (Kept consistent with Ambulance Form) */
+* { box-sizing: border-box; direction: rtl; }
+
+body {
+  background-color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* --- DOCUMENT STYLES (A4) --- */
+.a4-document {
+  width: 100%; max-width: 800px; 
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Typography */
+.a4-document h1, .a4-document h3, .a4-document h4 { color: #B71C1C; font-weight: 700; margin: 0; text-align: right; width: 100%; }
+.a4-document h1 { font-size: 28px; line-height: 1.2; }
+.a4-document h3 { font-size: 15px; margin-top: 15px; border-bottom: 2px solid #D32F2F; padding-bottom: 5px; color: #D32F2F; }
+.a4-document h4 { font-size: 14px; margin-top: 10px; margin-bottom: 5px; color: #B71C1C; }
+.a4-document p, .a4-document td, .a4-document li { color: #334155; font-size: 11px; line-height: 1.5; }
+.subtitle { font-size: 16px; font-weight: 400; color: #334155; margin-top: 5px; }
+
+/* Header */
+.header-section { display: flex; justify-content: flex-start; margin-bottom: 15px; align-items: center; } 
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+td, th { border: 1px solid #e2e8f0; padding: 6px; vertical-align: middle; }
+th { background: #F8FAFC; color: #334155; font-weight: 600; font-size: 11px; text-align: center; }
+
+/* Admin Table Specifics - Adjusted for Golf Cart */
+.admin-table th { width: 20%; background-color: #f9f9f9; }
+.admin-table td { width: 30%; }
+
+/* Inputs */
+input, select, textarea.form-field { 
+    width: 100%; border: 1px solid #e2e8f0; background: transparent; 
+    font-family: 'Cairo', sans-serif; font-size: 11px; padding: 4px; border-radius: 4px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid #D32F2F; border-color: transparent; }
+
+/* Status Colors (Good/Fault is universal for this checklist) */
+select.status-vehicle.good { background-color: #dcfce7; color: #15803d; font-weight: bold; border-color: #86efac; }
+select.status-vehicle.fault { background-color: #fee2e2; color: #b91c1c; font-weight: bold; border-color: #fca5a5; }
+
+.col-category { background-color: #fef2f2; color: #B71C1C; font-weight: 700; text-align: center; font-size: 12px; }
+
+/* --- NOTES FIELD --- */
+.general-notes {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 50px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    background-color: #f8fafc;
+    margin-bottom: 15px;
+}
+
+/* --- UPLOAD GRID STYLES (Adjusted for 4 items, 2x2 grid) --- */
+.upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.upload-box {
+    border: 2px dashed #cbd5e1;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    height: 180px; 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+.upload-box:hover {
+    border-color: #B71C1C;
+    background-color: #fff1f2;
+}
+.upload-box input[type="file"] {
+    position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;
+}
+.upload-label {
+    position: absolute; top: 5px; left: 5px;
+    background: rgba(255,255,255,0.9);
+    padding: 2px 6px; border-radius: 4px;
+    font-weight: bold; font-size: 10px;
+    color: #334155; border: 1px solid #e2e8f0; z-index: 1;
+}
+.upload-placeholder {
+    text-align: center; color: #94a3b8; pointer-events: none; font-size: 10px;
+}
+.upload-icon { font-size: 18px; margin-bottom: 2px; display: block; }
+.preview-img {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 0;
+}
+
+/* --- INSTRUCTIONS & DECLARATION --- */
+.declaration-box {
+    border: 2px solid #7f1d1d; background-color: #fff5f5;
+    padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;
+}
+.declaration-text { font-size: 12px; color: #333; font-weight: 600; line-height: 1.6; }
+
+/* --- SIGNATURE PAD STYLES --- */
+.signature-container {
+    position: relative; width: 100%; height: 90px;
+    border: 1px dashed #cbd5e1; background-color: #f8fafc;
+    border-radius: 4px; overflow: hidden; touch-action: none;
+}
+.signature-container canvas { width: 100%; height: 100%; display: block; }
+.clear-sig-btn {
+    position: absolute; top: 5px; left: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e2e8f0;
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px; cursor: pointer; color: #ef4444; font-weight: bold;
+    z-index: 3;
+}
+.sig-placeholder {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: #94a3b8; font-size: 10px; pointer-events: none; opacity: 0.7;
+    z-index: 1;
+}
+
+/* Print Styles */
+@media print {
+    body { background: none; padding: 0; }
+    .a4-document { box-shadow: none; padding: 0; width: 100%; max-width: none; }
+    input, select, textarea { border: none !important; -webkit-appearance: none; }
+    .signature-container { border: 1px solid #000; background: none; }
+    .clear-sig-btn, .sig-placeholder { display: none; }
+    .upload-box { border: 1px solid #000; background: none; height: 180px; }
+    .upload-placeholder { display: none; }
+    .preview-img { display: block !important; }
+
+    .signature-container canvas { display: none !important; }
+    .signature-container img { display: block !important; }
+
+    select.status-vehicle.fault { color: #b91c1c !important; font-weight: bold; text-decoration: underline; }
+}
+    </style>
+</head>
+<body>
+
+<div class="a4-document" id="a4-form">
+    
+    <div class="header-section">
+        <div>
+            <h1>نموذج استلام عربة الجولف</h1>
+            <p class="subtitle">DR SULAIMAN AL HABIB medical group</p>
+            <p class="subtitle" style="font-weight: 600;">Golf Car Handover Form</p>
+        </div>
+    </div>
+
+    <h3>I. بيانات العربة والاستلام (Cart & Handover Information)</h3>
+    <table class="admin-table">
+        <tbody>
+            <tr>
+                <th>رقم عربة الجولف<br><span style="font-weight:normal; font-size:10px;">Golf No</span></th>
+                <td><input type="text" id="admin-golfno"></td>
+                <th>التاريخ (ميلادي)<br><span style="font-weight:normal; font-size:10px;">Date</span></th>
+                <td><input type="date" id="admin-date"></td>
+                <th>الوقت<br><span style="font-weight:normal; font-size:10px;">Time</span></th>
+                <td><input type="time" id="admin-time"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>II. قائمة الفحص (Checklist)</h3>
+    <table>
+        <thead>
+            <tr><th style="width:5%">#</th><th style="width:45%">البند</th><th style="width:35%">Item (EN)</th><th style="width:15%">الحالة (Status)</th></tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="4" class="col-category">جاهزية العربة والمعدات (Cart & Equipment Readiness)</td></tr>
+            
+            <tr>
+                <td>1</td><td>أضواء الفرامل والخلفية والأمامية وإشارات الانعطاف تعمل</td><td>Brake, tail and head lights and turn signals are in working order</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>2</td><td>ضغط الإطارات مناسب؛ لا توجد قطع أو ثقوب</td><td>Proper tire inflation; no cuts or punctures</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>3</td><td>تسريب سائل البطارية؛ فحص البقع الرطبة أسفل العربة</td><td>Battery fluid leaks; check for wet spots under Cart</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>4</td><td>الزجاج الأمامي والمرايا نظيفة</td><td>Clear windshield and mirrors</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>5</td><td>المقود (التوجيه) طبيعي</td><td>Steering is normal</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>6</td><td>الفرامل تعمل بشكل صحيح</td><td>Brakes work properly</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>7</td><td>تروس الحركة الأمامية والخلفية تعمل</td><td>Forward and reverse gears are operational</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>8</td><td>خزانة الجانب تعمل بشكل صحيح</td><td>Side locker working properly</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>9</td><td>البوري (المنبه) يعمل بشكل صحيح</td><td>Horn working properly</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>10</td><td>الشاحن متوفر ويعمل</td><td>Charger is available and working</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+            <tr>
+                <td>11</td><td>لوحة النقل (Spine Board) متوفرة</td><td>Spine Board is available</td>
+                <td><select class="status-vehicle" onchange="updateVehicleColor(this)"><option value="">--</option><option value="good">سليم (Good)</option><option value="fault">عطل (Fault)</option></select></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>III. الملاحظات والتوثيق (Notes & Documentation)</h3>
+    
+    <div style="margin-bottom: 10px;">
+        <label style="font-weight:bold; font-size:12px; color:#334155;">ملاحظات فحص هيكل العربة (Body Damage Checklist / Note for any abnormality):</label>
+        <textarea class="general-notes" placeholder="يرجى تسجيل أي خدوش أو تلف في الهيكل هنا..."></textarea>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <label style="font-weight:bold; font-size:12px; color:#334155;">ملاحظات عامة (General Notes):</label>
+        <textarea class="general-notes" placeholder="ملاحظات إضافية بخصوص المعدات أو الجاهزية العامة..."></textarea>
+    </div>
+
+    <div class="upload-grid">
+        <div class="upload-box">
+            <span class="upload-label">1. المقدمة (Front)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-1" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-1')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">2. الخلف (Back)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-2" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-2')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">3. الجانب الأيمن (Right)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-3" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-3')">
+        </div>
+        <div class="upload-box">
+            <span class="upload-label">4. الجانب الأيسر (Left)</span>
+            <div class="upload-placeholder"><span class="upload-icon">📷</span><span>رفع صورة</span></div>
+            <img id="prev-4" class="preview-img"><input type="file" accept="image/*" onchange="previewImage(this, 'prev-4')">
+        </div>
+    </div>
+
+    <h3>IV. الإقرار (Declaration)</h3>
+    
+    <div class="declaration-box">
+        <div class="declaration-text">
+            أقرّ أنا **المسعف المستلم** بأنني استلمت عربة الجولف بحالة مطابقة لما هو موضح في النموذج، وأنني أتحمّل مسؤولية الإبلاغ عن أي أعطال أو أضرار تظهر أثناء فترة الاستلام.
+        </div>
+    </div>
+
+    <h3>V. التواقيع</h3>
+    <table class="signature-table">
+        <tr>
+            <td style="width:50%; vertical-align:top;">
+                <b>اسم المسعف المستلم (Receiving Paramedic Name):</b>
+                <input type="text" id="paramedic-name" class="form-field" style="height:25px; margin-bottom:5px;">
+                <div style="font-weight:bold; margin-bottom:2px;">توقيع المسعف (Paramedic Sig):</div>
+                <div class="signature-container" id="sig-receiver-container">
+                    <span class="sig-placeholder">وقع هنا</span>
+                    <canvas id="sig-receiver"></canvas>
+                    <img id="sig-receiver-img" class="preview-img" style="object-fit:contain; z-index: 0;">
+                    <button class="clear-sig-btn" onclick="clearCanvas('sig-receiver')">مسح</button>
+                </div>
+            </td>
+            <td style="width:50%; vertical-align:top;">
+                <b>اسم قائد الفريق (Team Leader Name):</b>
+                <input type="text" id="teamleader-name" class="form-field" style="height:25px; margin-bottom:5px;">
+                <div style="font-weight:bold; margin-bottom:2px;">توقيع قائد الفريق (Team Leader Sig):</div>
+                <div class="signature-container" id="sig-endorser-container">
+                    <span class="sig-placeholder">وقع هنا</span>
+                    <canvas id="sig-endorser"></canvas>
+                    <img id="sig-endorser-img" class="preview-img" style="object-fit:contain; z-index: 0;">
+                    <button class="clear-sig-btn" onclick="clearCanvas('sig-endorser')">مسح</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    document.getElementById('admin-date').valueAsDate = new Date();
+    const now = new Date();
+    document.getElementById('admin-time').value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    // Color Logic for Vehicle (Good/Fault)
+    function updateVehicleColor(select) {
+        select.className = 'status-vehicle';
+        if (select.value === 'good') select.classList.add('good');
+        else if (select.value === 'fault') select.classList.add('fault');
+    }
+
+    function previewImage(input, imgId) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById(imgId);
+                img.src = e.target.result;
+                img.style.display = 'block';
+                input.parentElement.querySelector('.upload-placeholder').style.opacity = '0';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    /**
+     * Fix for printing: converts canvas signature to an image and displays it 
+     * in the hidden <img> tag.
+     */
+    function saveSignatureAsImage(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const imgId = canvasId + '-img';
+        const img = document.getElementById(imgId);
+        
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let isBlank = true;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            if (imageData.data[i + 3] !== 0) { 
+                isBlank = false;
+                break;
+            }
+        }
+
+        if (!isBlank) {
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block'; 
+            canvas.style.display = 'block'; 
+        } else {
+            img.src = '';
+            img.style.display = 'none';
+        }
+    }
+
+    function initSignaturePad(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const container = canvas.parentElement;
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            const originalData = canvas.toDataURL(); 
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+            
+            if (originalData) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    saveSignatureAsImage(canvasId); 
+                };
+                img.src = originalData;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function startDrawing(e) {
+            isDrawing = true; draw(e);
+            container.querySelector('.sig-placeholder').style.display = 'none';
+            canvas.style.display = 'block';
+        }
+        
+        function stopDrawing() { 
+            if (isDrawing) {
+                saveSignatureAsImage(canvasId); 
+            }
+            isDrawing = false; 
+            ctx.beginPath(); 
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return; e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            ctx.lineTo(clientX - rect.left, clientY - rect.top);
+            ctx.stroke(); 
+            ctx.beginPath();
+            ctx.moveTo(clientX - rect.left, clientY - rect.top);
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+        canvas.addEventListener('touchmove', draw, {passive: false});
+    }
+
+    function clearCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.parentElement.querySelector('.sig-placeholder').style.display = 'block';
+
+        const imgId = canvasId + '-img';
+        const img = document.getElementById(imgId);
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+    }
+
+    window.onload = function() {
+        initSignaturePad('sig-receiver');
+        initSignaturePad('sig-endorser');
+    };
+</script>
+
+</body>
+</html>
